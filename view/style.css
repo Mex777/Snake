@@ -1,0 +1,17 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.map {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  border: 5px solid black;
+}
+
+.cell {
+  padding: 1rem;
+}
