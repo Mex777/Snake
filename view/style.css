@@ -2,13 +2,13 @@ body {
   font-family: sans-serif;
   text-align: center;
   background-color: #b5e877;
+  height: 100%;
 }
 
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* height: 100vh; */
 }
 
 .map {
@@ -20,4 +20,5 @@ body {
 
 .cell {
   padding: 1rem;
+  /* border: 1px solid black; */
 }

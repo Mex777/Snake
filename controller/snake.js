@@ -1,29 +1,29 @@
-const size = 18;
-let headI = size / 2;
-let headJ = size / 2;
+const boardSize = 20;
 const dirI = [1, 0, -1, 0];
 const dirJ = [0, 1, 0, -1];
-let dirType = -1;
-const snakeI = [];
-const snakeJ = [];
-let startI = 0;
-let startJ = 0;
+const snakeRow = [];
+const snakeCol = [];
+const inCell = Array.from(Array(boardSize), () => new Array(boardSize));
+let headRow = boardSize / 2;
+let headCol = boardSize / 2;
+let snakeStartRow = 0;
+let snakeStartCol = 0;
 let gameStarted = 0;
 let highScore = 0;
-const isUsed = Array.from(Array(size), () => new Array(size));
+let dirType = -1;
 
 /**
  * Prints the board on the screen
  */
 function drawtable() {
-  for (let i = 0; i < size; ++i) {
-    for (let j = 0; j < size; ++j) {
+  for (let row = 0; row < boardSize; ++row) {
+    for (let col = 0; col < boardSize; ++col) {
       const el = document.createElement('div');
-      el.style.gridRowStart = i + 1;
-      el.style.gridColumnStart = j + 1;
+      el.style.gridRowStart = row + 1;
+      el.style.gridColumnStart = col + 1;
       el.className = 'cell';
-      el.id = i + '-' + j;
-      el.style.backgroundColor = getColor(i, j);
+      el.id = row + '-' + col;
+      el.style.backgroundColor = getColor(row, col);
 
       document.getElementById('grid').appendChild(el);
     }
@@ -52,31 +52,25 @@ document.addEventListener('keydown', function(event) {
     dirType = 3;
   }
 
+  // starts the game
   if (!gameStarted && dirType != -1) {
-    startGame();
+    genRandomApple();
+    gameStarted = setInterval(updateMove(), 100);
   }
 });
 
 /**
- * 
- */
-function startGame() {
-  genRandomApple();
-  gameStarted = setInterval(updateMove, 150);
-}
-
-/**
- * 
+ * Moves the snake on the screen  
  */
 function updateMove() {
-  if (headI + dirI[dirType] >= 0 && headI + dirI[dirType] < size &&
-      headJ + dirJ[dirType] >= 0 && headJ + dirJ[dirType] < size &&
-      isUsed[headI + dirI[dirType]][headJ + dirJ[dirType]] != 'snake') {
-    headI += dirI[dirType];
-    headJ += dirJ[dirType];
-    snakeI.push(headI);
-    snakeJ.push(headJ);
-    updateTable(headI, headJ);
+  if (headRow + dirI[dirType] >= 0 && headRow + dirI[dirType] < boardSize &&
+      headCol + dirJ[dirType] >= 0 && headCol + dirJ[dirType] < boardSize &&
+      inCell[headRow + dirI[dirType]][headCol + dirJ[dirType]] != 'snake') {
+    headRow += dirI[dirType];
+    headCol += dirJ[dirType];
+    snakeRow.push(headRow);
+    snakeCol.push(headCol);
+    updateTable(headRow, headCol);
   } else {
     endGame();
   }
@@ -88,20 +82,20 @@ function updateMove() {
  * @param {number} currJ the column of the head of the snake
  */
 function updateTable(currI, currJ) {
-  document.getElementById(snakeI[startI] + '-' + snakeJ[startJ])
-      .style.backgroundColor = getColor(snakeI[startI], snakeJ[startJ]);
+  document.getElementById(snakeRow[snakeStartRow] + '-' + snakeCol[snakeStartCol])
+      .style.backgroundColor = getColor(snakeRow[snakeStartRow], snakeCol[snakeStartCol]);
 
-  if (isUsed[currI][currJ] == 'apple') {
+  if (inCell[currI][currJ] == 'apple') {
     genRandomApple();
     document.getElementById('currScore')
-        .innerHTML = 'Current score: ' + (snakeI.length - startI - 1);
-  } else if (startI < snakeI.length - 1) {
-    isUsed[snakeI[startI]][snakeJ[startJ]] = 'empty';
-    ++startI;
-    ++startJ;
+        .innerHTML = 'Current score: ' + (snakeRow.length - snakeStartRow - 1);
+  } else if (snakeStartRow < snakeRow.length - 1) {
+    inCell[snakeRow[snakeStartRow]][snakeCol[snakeStartCol]] = 'empty';
+    ++snakeStartRow;
+    ++snakeStartCol;
   }
 
-  isUsed[currI][currJ] = 'snake';
+  inCell[currI][currJ] = 'snake';
   document.getElementById(currI + '-' + currJ)
       .style.backgroundColor = '#c26f27';
 }
@@ -111,16 +105,17 @@ function updateTable(currI, currJ) {
  * Generates a random apple on the board 
  */
 function genRandomApple() {
-  let randI = Math.floor(Math.random() * size);
-  let randJ = Math.floor(Math.random() * size);
+  let randI = Math.floor(Math.random() * boardSize);
+  let randJ = Math.floor(Math.random() * boardSize);
 
-  while (isUsed[randI][randJ] == 'snake') {
-    randI = Math.floor(Math.random() * size);
-    randJ = Math.floor(Math.random() * size);
+  while (inCell[randI][randJ] == 'snake') {
+    randI = Math.floor(Math.random() * boardSize);
+    randJ = Math.floor(Math.random() * boardSize);
   }
 
-  isUsed[randI][randJ] = 'apple';
-  document.getElementById(randI + '-' + randJ).style.backgroundColor = 'red';
+  inCell[randI][randJ] = 'apple';
+  document.getElementById(randI + '-' + randJ)
+      .style.backgroundColor = 'red';
 }
 
 /**
@@ -128,25 +123,26 @@ function genRandomApple() {
  */
 function endGame() {
   clearInterval(gameStarted);
-  if (snakeI.length - startI > highScore) {
-    highScore = snakeI.length - startI - 1;
+  if (snakeRow.length - snakeStartRow > highScore) {
+    highScore = snakeRow.length - snakeStartRow - 1;
   }
 
   // resets the values to the standard way
   gameStarted = 0;
-  headI = size / 2;
-  headJ = size / 2;
-  startI = 0;
-  startJ = 0;
-  snakeI.length = 0;
-  snakeJ.length = 0;
+  headRow = boardSize / 2;
+  headCol = boardSize / 2;
+  snakeStartRow = 0;
+  snakeStartCol = 0;
+  snakeRow.length = 0;
+  snakeCol.length = 0;
+  dirType = -1;
 
   // clears the table on the screen and in the logic
-  for (let i = 0; i < size; ++i) {
-    for (let j = 0; j < size; ++j) {
-      isUsed[i][j] = 'empty';
-      document.getElementById(i + '-' + j)
-          .style.backgroundColor = getColor(i, j);
+  for (let row = 0; row < boardSize; ++row) {
+    for (let col = 0; col < boardSize; ++col) {
+      inCell[row][col] = 'empty';
+      document.getElementById(row + '-' + col)
+          .style.backgroundColor = getColor(row, col);
     }
   }
 
@@ -159,12 +155,12 @@ function endGame() {
 
 /**
  * Returns the wanted color for the given row and color
- * @param {number} i the current row
- * @param {number} j the current column
+ * @param {number} row the current row
+ * @param {number} col the current column
  * @return {string} the wanted color for the current cell
  */
-function getColor(i, j) {
-  if ((i + j) % 2 == 0) {
+function getColor(row, col) {
+  if ((row + col) % 2 == 0) {
     return '#32a852';
   }
   return '#4ef27a';
