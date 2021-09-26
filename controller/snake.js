@@ -1,4 +1,4 @@
-const boardSize = 20;
+const boardSize = 18;
 const dirI = [1, 0, -1, 0];
 const dirJ = [0, 1, 0, -1];
 const snakeRow = [];
