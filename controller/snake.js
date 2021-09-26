@@ -1,11 +1,11 @@
-const boardSize = 18;
+const boardSize = 20;
 const dirI = [1, 0, -1, 0];
 const dirJ = [0, 1, 0, -1];
 const snakeRow = [];
 const snakeCol = [];
 const inCell = Array.from(Array(boardSize), () => new Array(boardSize));
-let headRow = boardSize / 2;
-let headCol = boardSize / 2;
+let headRow = boardSize / 2 - 1;
+let headCol = boardSize / 2 - 1;
 let snakeStartRow = 0;
 let snakeStartCol = 0;
 let gameStarted = 0;
@@ -55,7 +55,7 @@ document.addEventListener('keydown', function(event) {
   // starts the game
   if (!gameStarted && dirType != -1) {
     genRandomApple();
-    gameStarted = setInterval(updateMove(), 100);
+    gameStarted = setInterval(updateMove, 100);
   }
 });
 
